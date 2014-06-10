@@ -1,4 +1,4 @@
-# Django settings for smytest project.
+# Django settings for dynmodels project.
 import os
 
 
@@ -16,13 +16,17 @@ DEPLOY_DIR = os.path.dirname(os.path.realpath(__file__))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(DEPLOY_DIR,'testdb.sqlite3'),
+        'NAME': os.path.join(DEPLOY_DIR, 'testdb.sqlite3'),
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
+
+MODELS_SCHEMA_PATH = '/home/animasola/Documents/MyProjects/Stest/testapp/static/model_schema.xml'
+MAX_INTFIELD_LENGTH = 5
+MAX_CHARFIELD_LENGTH = 70
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.4/ref/settings/#allowed-hosts
@@ -104,10 +108,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'smytest.urls'
+ROOT_URLCONF = 'dynmodels.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'smytest.wsgi.application'
+WSGI_APPLICATION = 'dynmodels.wsgi.application'
 
 FIXTURE_DIRS = (
     os.path.join(DEPLOY_DIR, "testapp", "fixtures"),
