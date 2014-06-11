@@ -10,10 +10,18 @@ TO_BOOL_ATTRS = ['null', 'blank']
 
 
 def map_to_db_fields(field_attrs):
+    """
+    Mapping parsed field types to apropriate django model fields if it's possible.
+    Accepts:
+        :field_attrs: - <type 'lxml.etree._Attrib'>
+    Returns:
+        Dictionary e.g {'paycheck': <django.db.models.fields.DecimalField>}
+    """
     attr_keys = field_attrs.keys()
     field_name = field_attrs[attr_keys.pop(attr_keys.index('name'))]
     field_type_raw = field_attrs[attr_keys.pop(attr_keys.index('type'))]
 
+    # field_type - constructor for a django.db.models.fields objects
     try:
         field_type = getattr(fields, field_type_raw)
     except:
