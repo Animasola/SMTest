@@ -4,6 +4,7 @@
     <field name="name" type="CharField" verbose_name="Name" null="true" blank="true" max_length='70'/>
     <field name="paycheck" type="DecimalField" verbose_name="Paycheck" null="true" blank="true" max_digits="5" decimal_places="2"/>
     <field name="date_joined" type="DateField" verbose_name="Date Joined" null="true" blank="true"/>
+    <field name="email" type="EmailField" verbose_name="User Email" null="true" blank="true"/>
   </model>
   <model name="Residence">
     <field name="department" type="CharField" verbose_name="Department" null="true" blank="true" max_length="70"/>
