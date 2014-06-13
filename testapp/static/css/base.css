@@ -1,0 +1,40 @@
+body {
+    margin: 0px;
+    padding:15px;
+}
+
+.container {
+    clear: both;
+}
+
+.content { 
+    width: 80%;
+    float:left;
+}
+
+.left-panel { 
+    width: 20%;
+    height:100%;
+    min-height: 100%;
+    float: left;
+}
+
+.content, .left-panel {
+    margin: 0;
+    padding: 0;
+}
+
+/* Model content table */
+    .js-table {
+	    width:95%;
+    }
+    .js-table, .js-table th, .js-table td {
+        border: 1px solid #000000;
+        border-collapse: collapse;
+        text-align: center;
+        padding: 3px;
+    }
+    .js-table tr {
+    	height: 50px;
+    }
+/* /Model content table */

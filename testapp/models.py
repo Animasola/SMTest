@@ -4,6 +4,8 @@ from django.contrib import admin
 
 from testapp.utils import get_models_structure
 
+MODEL_NAMES = []
+
 
 def create_model(name, fields=None, app_label='', module='', options=None, admin_opts=None):
     """
@@ -33,6 +35,7 @@ def create_model(name, fields=None, app_label='', module='', options=None, admin
 dynamic_models = get_models_structure()
 
 for model_name, fields in dynamic_models.iteritems():
+    MODEL_NAMES.append(model_name.lower())
     admin_options = {
         'list_display': sorted(fields.keys()),
     }

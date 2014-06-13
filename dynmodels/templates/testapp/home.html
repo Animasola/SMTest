@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Models content page{% endblock %}
+
+{% block extra_js %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/model_content_preview.js"></script>
+{% endblock %}
+
+{% block left %}
+<ul>
+{% for model_name in models %}
+  <li><a name="{{ model_name }}" class="js-swith-model" href="{% url preview_model_data %}">{{ model_name.capitalize }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}

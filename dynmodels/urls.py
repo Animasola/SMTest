@@ -4,9 +4,9 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'dynmodels.views.home', name='home'),
+urlpatterns = patterns(
+    '',
+    url(r'^testapp/', include('testapp.urls')),
     # url(r'^dynmodels/', include('dynmodels.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
