@@ -9,6 +9,7 @@ import json
 from annoying.decorators import ajax_request
 
 from testapp.models import MODEL_NAMES
+from testapp.utils import get_model_field_types
 
 
 @require_GET
@@ -16,11 +17,14 @@ def preview_model_data(request, model_name=None):
     response = {}
     if request.is_ajax():
         try:
-            fetch_model = request.GET.get('model_name')
-            queryset = get_model('testapp', fetch_model).objects.all()
+            fetch_model_name = request.GET.get('model_name')
+            model = get_model('testapp', fetch_model_name)
+            queryset = model.objects.all()
             output = serializers.serialize('python', queryset)
+            field_types = get_model_field_types(model)
             response.update({
                 'table_content': output,
+                'field_types': field_types,
                 'result': 'success'})
         except:
             response.update({'result': 'error'})

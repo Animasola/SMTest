@@ -57,3 +57,15 @@ def get_models_structure():
         result.update({model.attrib['name']: fields})
 
     return result
+
+
+def get_model_field_types(model):
+    result = {}
+    try:
+        fields = model._meta.get_all_field_names()
+        for field_name in fields:
+            result[field_name] = model._meta.get_field(field_name).get_internal_type()
+    except:
+        raise Exception("Unable to get given model field types.")
+
+    return result
