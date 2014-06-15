@@ -48,6 +48,7 @@ def update_model(request):
         updated_data = json.loads(request.POST.get('model_data'))
 
     if model_name and updated_data:
+        response['model_name'] = model_name
         try:
             requested_model = get_model('testapp', model_name)
             for instance_id, new_field_vals in updated_data.iteritems():

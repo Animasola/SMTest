@@ -17,14 +17,26 @@ jQuery(function ($) {
             $('.js-swith-model').on('click', testapp.models_preview.click_on_model_url);
             $('body').on('keydown', testapp.models_preview.ctrl_enter_press);
         },
-        click_on_model_url:function(e){
-            e.preventDefault();
-            $('table.js-table').remove();
-            var table_name = $(this).attr("name"),
-                $show_table = $("table[name=" + table_name + "]"),
-                url = $(this).attr("href"),
+        click_on_model_url:function(e, table_){
+            var table_name = "",
+                url = "",
                 data = {};
-            data['model_name'] = table_name;
+            if (e != null) {
+                e.preventDefault();
+            }
+            $('table.js-table').remove();
+
+            if (typeof table_ == 'undefined'){
+                table_name = $(this).attr("name")
+                url = $(this).attr("href")
+            } else {
+                table_name = table_
+                url = "/testapp/?model_name=" + table_name
+            }
+            data['model_name'] = table_name
+            // var $show_table = $("table[name=" + table_name + "]");
+
+
             $.ajax({
                 url: url,
                 data: data,
@@ -120,13 +132,14 @@ jQuery(function ($) {
         },
         send_table_update:function() {
             var result = {},
-                data = {};
+                data = {},
+                model_name = "";
             $('.updated-cell').each(function(){
                 var val = "",
                     table_row_class = $(this).closest('tr').attr('class'),
-                    model_name = table_row_class.split('-')[0],
                     object_id = table_row_class.split('-')[1],
                     field_name = $(this).attr('name');
+                model_name = table_row_class.split('-')[0]
                 if (typeof data['model_name'] == 'undefined') {
                     data['model_name'] = model_name
                 }
@@ -149,7 +162,16 @@ jQuery(function ($) {
                 url: window.testapp.update_model_url,
                 data: data,
                 dataType: "json"
-            })
+            }).done(function(data){
+                var result = data['result'],
+                    table_name = "";
+                if (result == 'ok') {
+                    table_name = data['model_name']
+                    testapp.models_preview.click_on_model_url(null, table_name)
+                } else {
+                    alert("Something's went wrong :(")
+                }
+            });
 
         }
     };
