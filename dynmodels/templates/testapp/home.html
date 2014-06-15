@@ -6,6 +6,9 @@
   <script type="text/javascript" src="{{ STATIC_URL }}js/csrf.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.numeric.js"></script>
   <script type="text/javascript" src="{{ STATIC_URL }}js/model_content_preview.js"></script>
+  <script type="text/javascript">
+	  window.testapp.update_model_url = "{% url update_model %}"
+  </script>
 {% endblock %}
 
 {% block left %}

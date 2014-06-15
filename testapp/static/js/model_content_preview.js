@@ -15,6 +15,7 @@ jQuery(function ($) {
         },
         bindEvants:function(){
             $('.js-swith-model').on('click', testapp.models_preview.click_on_model_url);
+            $('body').on('keydown', testapp.models_preview.ctrl_enter_press);
         },
         click_on_model_url:function(e){
             e.preventDefault();
@@ -47,14 +48,14 @@ jQuery(function ($) {
                         $html_table.append('<tbody class="js-tbody"><tr class="'+row_class_name+'">')
                         var $row = $('tr.'+row_class_name);
                         $.each(fields, function(key, value){
-                            $row.append('<td class="' + field_types[key] + '">'+value+'</td>')
+                            $row.append('<td name="' + key + '" class="' + field_types[key] + '">'+value+'</td>')
                         });
                         $row.append('</tr>')
                     } else {
                         $html_table.append('<tr class="'+row_class_name+'">')
                         var $row = $('tr.'+row_class_name);
                         $.each(fields, function(key, value){
-                            $row.append('<td class="' + field_types[key] + '">'+value+'</td>')
+                            $row.append('<td name="' + key + '" class="' + field_types[key] + '">'+value+'</td>')
                         });
                         $row.append('</tr>')
                     }
@@ -75,11 +76,11 @@ jQuery(function ($) {
             $cell.html(new_val).find('input[type=text]').focus().css('width',cellWidth);
 
 
-            testapp.models_preview.attach_widget($cell);
+            testapp.models_preview.attach_widget($cell, prevContent);
 
             $cell.on('click', function(){return false});
             $cell.focusout(function () {
-                if ($cell.find('.newValue').val() == prevContent) {
+                if ($cell.find('.newValue').val() == prevContent ) {
                     $cell.text(prevContent);
                     $cell.removeClass("updated-cell");
                     $cell.off('click');
@@ -93,18 +94,63 @@ jQuery(function ($) {
                 }
             });
         },
-        attach_widget:function(cell) {
+        attach_widget:function(cell, prevContent) {
             if (cell.hasClass("IntegerField") || cell.hasClass("DecimalField") || cell.hasClass("FloatField")) {
                 cell.find('.newValue').numeric({ negative: false }, function() { alert("No negative values"); this.value = ""; this.focus(); });
             } else { if (cell.hasClass("DateField")) {
-                var date_input = cell.find('input.newValue');
-                date_input.val("")
+                var date_input = cell.find('input.newValue'),
+                    date_parts = prevContent.match(/(\d+)/g),
+                    realDate = new Date(date_parts[0], date_parts[1] - 1, date_parts[2]);
                 date_input.addClass("date-pick")
                 }
             }
             $('.date-pick').each(function(){
-                $(this).datepicker({ dateFormat: 'yy-mm-dd'})
+                $(this).datepicker({
+                    dateFormat: 'yy-mm-dd'
+                })
             });
+            var datepick = cell.find('.date-pick');
+            datepick.datepicker("setDate", realDate)
+            datepick.val("").datepicker("show")
+        },
+        ctrl_enter_press:function(e){
+            if (e.ctrlKey && e.keyCode == 13) {
+                testapp.models_preview.send_table_update()
+            }
+        },
+        send_table_update:function() {
+            var result = {},
+                data = {};
+            $('.updated-cell').each(function(){
+                var val = "",
+                    table_row_class = $(this).closest('tr').attr('class'),
+                    model_name = table_row_class.split('-')[0],
+                    object_id = table_row_class.split('-')[1],
+                    field_name = $(this).attr('name');
+                if (typeof data['model_name'] == 'undefined') {
+                    data['model_name'] = model_name
+                }
+
+                val = $(this).find('.newValue').val()
+
+                if (val == '') {
+                    val = null
+                }
+
+                if (typeof result[object_id] == 'undefined') {
+                    result[object_id] = {}
+                }
+
+                result[object_id][field_name] = val;
+            });
+            data['model_data'] = JSON.stringify(result)
+            $.ajax({
+                type: "POST",
+                url: window.testapp.update_model_url,
+                data: data,
+                dataType: "json"
+            })
+
         }
     };
     testapp.models_preview.init();

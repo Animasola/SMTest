@@ -1,9 +1,9 @@
-from django.db.models.loading import get_model
+from django.views.decorators.http import require_POST, require_GET
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.core import serializers
-from django.core.serializers.json import DjangoJSONEncoder
-from django.views.decorators.http import require_POST, require_GET
+from django.db.models.loading import get_model
 
 import json
 from annoying.decorators import ajax_request
@@ -35,5 +35,27 @@ def preview_model_data(request, model_name=None):
         return HttpResponse(data, mimetype='application/json')
 
     return render(
-        request, 'testapp/home.html', {'models': MODEL_NAMES}
-    )
+        request, 'testapp/home.html', {'models': MODEL_NAMES})
+
+
+@ajax_request
+@require_POST
+def update_model(request):
+    response = {'result': 'ok'}
+    updated_data = None
+    model_name = request.POST.get('model_name')
+    if 'model_data' in request.POST and request.POST['model_data']:
+        updated_data = json.loads(request.POST.get('model_data'))
+
+    if model_name and updated_data:
+        try:
+            requested_model = get_model('testapp', model_name)
+            for instance_id, new_field_vals in updated_data.iteritems():
+                requested_model.objects.filter(
+                    id=instance_id).update(**new_field_vals)
+        except:
+            response['result'] = 'error'
+    data = json.dumps(response, ensure_ascii=False)
+
+    return HttpResponse(
+        data, mimetype='application/json')
