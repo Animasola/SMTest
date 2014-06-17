@@ -12,7 +12,7 @@ run:
 shell:
 	PYTHONPATH=`pwd` DJANGO_SETTINGS_MODULE=dynmodels.settings $(MANAGE) shell
 
-tests:
+test:
 	PYTHONPATH=`pwd` DJANGO_SETTINGS_MODULE=dynmodels.settings $(MANAGE) test testapp
 
 migrate:
