@@ -71,7 +71,6 @@ MEDIA_URL = '/media/'
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = os.path.join(os.path.split(DEPLOY_DIR)[0], 'static')
-print STATIC_ROOT
 
 STATIC_URL = '/static/'
 
@@ -146,6 +145,11 @@ INSTALLED_APPS = (
 # the site admins on every HTTP 500 error when DEBUG=False.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+
+import dj_database_url
+DATABASES['default'] = dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
