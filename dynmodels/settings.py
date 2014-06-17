@@ -12,17 +12,21 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DEPLOY_DIR = os.path.dirname(os.path.realpath(__file__))
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(DEPLOY_DIR, 'testdb.sqlite3'),
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+#         'NAME': os.path.join(DEPLOY_DIR, 'testdb.sqlite3'),
+#         'USER': '',                      # Not used with sqlite3.
+#         'PASSWORD': '',                  # Not used with sqlite3.
+#         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+#         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+#     }
+# }
 
 MODELS_SCHEMA_PATH = os.path.join(os.path.split(DEPLOY_DIR)[0], 'testapp', 'static', 'model_schema.xml')
 
@@ -145,9 +149,6 @@ INSTALLED_APPS = (
 # the site admins on every HTTP 500 error when DEBUG=False.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
-
-import dj_database_url
-DATABASES['default'] = dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 
 
 LOGGING = {
