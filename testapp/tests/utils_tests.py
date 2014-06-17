@@ -5,7 +5,7 @@ from django.db.models import fields
 
 from lxml import etree
 
-from testapp.utils import get_model_field_types, map_to_db_fields
+from testapp.utils import map_to_db_fields
 from testapp.models import MODEL_NAMES
 
 
@@ -26,9 +26,9 @@ class UtilsTestCase(TestCase):
                 field_type = getattr(fields, field_type_name)
 
                 result = map_to_db_fields(field.attrib)
-
-                expected_result = {
-                    field_name: field_type({'name': field_name, 'type': field_type})
+                expected_result = {field_name: field_type({
+                    'name': field_name,
+                    'type': field_type})
                 }
 
                 self.assertEquals(result.keys(), expected_result.keys())

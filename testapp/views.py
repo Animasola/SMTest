@@ -41,10 +41,24 @@ def preview_model_data(request, model_name=None):
 @ajax_request
 @require_POST
 def update_model(request):
+
+    if not request.is_ajax():
+        response = HttpResponse('Ajax Required')
+        response.status_code = 400
+        return response
+
     response = {'result': 'success'}
     update_data = None
     new_objects_data = None
     model_name = request.POST.get('model_name', None)
+
+    got_model = model_name in MODEL_NAMES
+
+    if got_model is False:
+        return {
+            'result': 'error',
+            'err_msg': 'No such table - %s' % model_name}
+
     if 'update_data' in request.POST and request.POST['update_data']:
         update_data = json.loads(request.POST.get('update_data'))
     if 'new_objects_data' in request.POST and request.POST['new_objects_data']:
@@ -69,7 +83,4 @@ def update_model(request):
         except:
             response['result'] = 'error'
 
-    data = json.dumps(response, ensure_ascii=False)
-
-    return HttpResponse(
-        data, mimetype='application/json')
+    return response

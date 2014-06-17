@@ -77,7 +77,7 @@ jQuery(function ($) {
 
                 $('div.content').append('<input class="js-add-table-row" type="button" value="Add New Row" />')
                 $('input.js-add-table-row').click(function() {
-                    testapp.models_preview.append_new_entry_form(data['field_types'], table_name)
+                    testapp.models_preview.append_new_entry(data['field_types'], table_name)
                 });
 
                 $('table.js-table').on('click', 'td', testapp.models_preview.display_td_input);
@@ -201,7 +201,7 @@ jQuery(function ($) {
             });
 
         },
-        append_new_entry_form:function(field_types, model_name) {
+        append_new_entry:function(field_types, model_name) {
             var $table = $('table.js-table');
                 $table_body = $table.find('.js-tbody'),
                 headers = [];
