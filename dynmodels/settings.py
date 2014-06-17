@@ -24,7 +24,9 @@ DATABASES = {
     }
 }
 
-MODELS_SCHEMA_PATH = '/home/animasola/Documents/MyProjects/Stest/testapp/static/model_schema.xml'
+MODELS_SCHEMA_PATH = os.path.join(os.path.split(DEPLOY_DIR)[0], 'testapp', 'static', 'model_schema.xml')
+
+#/home/animasola/Documents/MyProjects/Stest/testapp/static/model_schema.xml'
 MAX_INTFIELD_LENGTH = 5
 MAX_CHARFIELD_LENGTH = 70
 
