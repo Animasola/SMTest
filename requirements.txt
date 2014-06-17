@@ -1,0 +1,7 @@
+# The following requirements were added by pip --freeze:
+Django==1.4.5
+South==0.8.4
+argparse==1.2.1
+django-annoying==0.8.0
+lxml==3.3.5
+wsgiref==0.1.2 

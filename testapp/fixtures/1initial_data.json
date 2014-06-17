@@ -35,7 +35,7 @@
         "pk": 5, 
         "model": "testapp.residence", 
         "fields": {
-            "department": "Oblivion", 
+            "department": "Skyrim", 
             "spots": 170
         }
     }, 
@@ -51,16 +51,8 @@
         "pk": 7, 
         "model": "testapp.residence", 
         "fields": {
-            "department": "Mirror's Edg\u0435", 
+            "department": "Mirror's Edge", 
             "spots": 163
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "testapp.residence", 
-        "fields": {
-            "department": "Singularity", 
-            "spots": 15
         }
     }, 
     {
@@ -91,24 +83,6 @@
             "paycheck": "150.4", 
             "name": "Annima", 
             "date_joined": "2014-06-01"
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "auth.user", 
-        "fields": {
-            "username": "admin", 
-            "first_name": "", 
-            "last_name": "", 
-            "is_active": true, 
-            "is_superuser": true, 
-            "is_staff": true, 
-            "last_login": "2014-06-16T05:33:33.962Z", 
-            "groups": [], 
-            "user_permissions": [], 
-            "password": "pbkdf2_sha256$10000$pUVQjart3BJM$8biL5UAy7e+Q6M85QxmkqJ6Cg+mvLRUStFUZAi7Wm3s=", 
-            "email": "admin@mail.com", 
-            "date_joined": "2014-06-11T07:06:48.457Z"
         }
     }
 ]
