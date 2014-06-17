@@ -71,6 +71,7 @@ MEDIA_URL = '/media/'
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = os.path.join(os.path.split(DEPLOY_DIR)[0], 'static')
+print STATIC_ROOT
 
 STATIC_URL = '/static/'
 
