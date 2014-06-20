@@ -12,6 +12,9 @@ class ViewsTestCase(TestCase):
 
     fixtures = ['initial_data.json']
 
+    def setUp(self):
+        self.client.login(username="admin", password="admin")
+
     def test_preview_model_data(self):
         # only GET requests should be allowed
         response = self.client.post(reverse('preview_model_data'))
