@@ -1,5 +1,6 @@
 from django.views.decorators.http import require_POST, require_GET
 from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib.auth.decorators import login_required
 from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -12,6 +13,7 @@ from testapp.models import MODEL_NAMES
 from testapp.utils import get_model_field_types
 
 
+@login_required
 @require_GET
 def preview_model_data(request, model_name=None):
     response = {}
