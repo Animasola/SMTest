@@ -72,17 +72,30 @@ def update_model(request):
     requested_model = get_model('testapp', model_name)
 
     if update_data:
+        curr_instance_id = None
         try:
             for instance_id, new_field_vals in update_data.iteritems():
+                curr_instance_id = instance_id
                 requested_model.objects.filter(
                     id=instance_id).update(**new_field_vals)
         except:
-            response['result'] = 'error'
+            response.update(
+                {
+                    'result': 'error',
+                    'err_msg': "Error occured while trying to update table.",
+                    'failed-record': "%s-%s" % (model_name, curr_instance_id)
+                }
+            )
     if new_objects_data:
         try:
             for new_object in new_objects_data:
                 requested_model.objects.create(**new_object)
         except:
-            response['result'] = 'error'
+            response.update(
+                {
+                    'result': 'error',
+                    'err_msg': "Error occured while trying to create new record."
+                }
+            )
 
     return response

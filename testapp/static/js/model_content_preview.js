@@ -12,6 +12,7 @@ jQuery(function ($) {
         },
         cacheElements:function(){
             testapp.models_preview.$content_block = $('div.content');
+            testapp.models_preview.$status_msg = $('p.msg')
         },
         bindEvants:function(){
             $('.js-swith-model').on('click', testapp.models_preview.click_on_model_url);
@@ -24,6 +25,7 @@ jQuery(function ($) {
             if (e != null) {
                 e.preventDefault();
             }
+            testapp.models_preview.$status_msg.fadeOut()
             $('table.js-table').remove()
             $('input.js-add-table-row').remove()
 
@@ -34,7 +36,6 @@ jQuery(function ($) {
                 url = $(this).attr("href")
             } else {
                 table_name = table_
-                // url = "/testapp/?model_name=" + table_name
             }
             data['model_name'] = table_name
 
@@ -99,39 +100,70 @@ jQuery(function ($) {
             testapp.models_preview.attach_widget($cell, prevContent);
 
             $cell.on('click', function(){return false});
+
+            var $inp = $cell.find('input.newValue');
+
             $cell.focusout(function () {
                 if ($cell.find('.newValue').val() == prevContent ) {
                     $cell.text(prevContent);
                     $cell.removeClass("updated-cell");
                     $cell.off('click');
-                    }
-                });
+                }
+
+            });
             $cell.on('keydown',function(e) {
                 if (e.keyCode == 27) {
                     $cell.text(prevContent);
-                    $cell.removeClass("updated-cell");
+                    $cell.removeClass("updated-cell error-cell");
+                    $cell.closest('tr').removeClass('failed-record');
                     $cell.off('click');
                 }
             });
         },
         attach_widget:function(cell, prevContent) {
-            if (cell.hasClass("IntegerField") || cell.hasClass("DecimalField") || cell.hasClass("FloatField")) {
-                cell.find('.newValue').numeric({ negative: false }, function() { alert("No negative values"); this.value = ""; this.focus(); });
-            } else { if (cell.hasClass("DateField")) {
+            if (cell.hasClass("DecimalField") || cell.hasClass("FloatField")) {
+                cell.find('.newValue').numeric({ negative: false }, function() { alert("No negative values"); this.value = "0.0"; this.focus(); });
+            }
+
+            if (cell.hasClass("IntegerField") ) {
+                    cell.find('.newValue').numeric(false, function() { alert("Integers only"); this.value = "0"; this.focus(); });
+                }
+
+            if (cell.hasClass("DateField")) {
                 var date_input =  cell.find('input.newValue'),
                     date_parts = prevContent.match(/(\d+)/g),
                     realDate = new Date(date_parts[0], date_parts[1] - 1, date_parts[2]);
                 date_input.addClass("date-pick")
                 }
+
+            if (cell.hasClass("EmailField")) {
+                var email_input = cell.find('input.newValue');
+
+                email_input.addClass('email-input')
             }
+
             $('.date-pick').each(function(){
                 $(this).datepicker({
                     dateFormat: 'yy-mm-dd'
                 })
             });
+
+            $('.email-input').each(function() {
+                $(this).keyup(function() {
+                    if (!testapp.models_preview.valid_email($(this).val())) {
+                        if (!cell.hasClass("error-cell")) {
+                            cell.addClass("error-cell")
+                        }
+                    } else {
+                        cell.removeClass("error-cell")
+                    }
+                });
+            });
+
             var datepick = cell.find('.date-pick');
             datepick.datepicker("setDate", realDate)
             datepick.val("").datepicker("show")
+
         },
         ctrl_enter_press:function(e){
             if (e.ctrlKey && e.keyCode == 13) {
@@ -142,7 +174,19 @@ jQuery(function ($) {
         send_table_update:function(model_name) {
             var update = {},
                 new_rows = [],
-                data = {};
+                data = {},
+                $error_cells = $('td.error-cell');
+
+            if ($error_cells.length) {
+                testapp.models_preview.$status_msg.fadeOut()
+                testapp.models_preview.$status_msg.addClass("error").text("Unable to save table. Some fields has incorrect values....")
+                testapp.models_preview.$status_msg.removeClass("info")
+                testapp.models_preview.$status_msg.fadeIn('slow')
+                return false;
+            }
+
+            $('tr.failed-record').removeClass('failed-record');
+
             $('tr.js-new-entry').each(function(idx, row){
                 $(row).attr('id', 'new_row-' + idx);
             });
@@ -153,13 +197,16 @@ jQuery(function ($) {
                     field_name = $(cell).attr('name');
 
                 if ($(cell).closest('tr').hasClass('js-new-entry') == false) {
-                    var object_id = table_row_class.split('-')[1];
+                    var object_id = table_row_class.split('-')[1],
+                        cell_is_digit = $(cell).hasClass("IntegerField") || $(cell).hasClass("FloatField") || $(cell).hasClass("DecimalField"),
+                        cell_is_email = $(cell).hasClass("EmailField");
 
                     val = $(cell).find('.newValue').val()
 
-                    if (val == '') {
-                        val = null
+                    if (val == '' && cell_is_digit ) {
+                        val = 0
                     }
+
                     if (typeof update[object_id] == 'undefined') {
                         update[object_id] = {}
                     }
@@ -171,7 +218,7 @@ jQuery(function ($) {
                     model_name = table_row_class.split(' ')[1]
 
                     val = $(cell).find('.newValue').val()
-                    if (val == '') {
+                    if (val == '' && cell_is_digit ) {
                         val = null
                     }
                     if (typeof new_rows[row_id] == 'undefined') {
@@ -191,12 +238,23 @@ jQuery(function ($) {
                 dataType: "json"
             }).done(function(data){
                 var result = data['result'],
-                    table_name = "";
+                    table_name = data['model_name'];
                 if (result == 'success') {
-                    table_name = data['model_name']
                     testapp.models_preview.click_on_model_url(null, table_name)
+                    testapp.models_preview.$status_msg.text("Data updated successfuly...")
+                    testapp.models_preview.$status_msg.removeClass("error")
+                    testapp.models_preview.$status_msg.addClass("info")
+                    testapp.models_preview.$status_msg.fadeIn('slow')
                 } else {
-                    alert("Something's went wrong :(")
+                    testapp.models_preview.$status_msg.text(data['err_msg'])
+                    testapp.models_preview.$status_msg.removeClass("info")
+                    testapp.models_preview.$status_msg.addClass("error")
+                    testapp.models_preview.$status_msg.fadeIn('slow')
+
+                    if (typeof data['failed-record'] != 'undefined'){
+                        var err_row_class = data['failed-record'];
+                        $('tr.' + err_row_class).addClass('failed-record')
+                    }
                 }
             });
 
@@ -222,6 +280,15 @@ jQuery(function ($) {
                 }
             });
             $new_row.append('</tr>')
+        },
+        valid_email:function (val) {
+            var regex = new RegExp(/^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i),
+                result = true;
+
+            if (val.length > 0) {
+                result = regex.test(val)
+            }
+            return result;
         }
     };
     testapp.models_preview.init();

@@ -64,7 +64,8 @@ def get_model_field_types(model):
     try:
         fields = model._meta.get_all_field_names()
         for field_name in fields:
-            result[field_name] = model._meta.get_field(field_name).get_internal_type()
+            result[field_name] = model._meta.get_field(
+                field_name).__class__.__name__
     except:
         raise Exception("Unable to get given model field types.")
 
