@@ -49,7 +49,7 @@ jQuery(function ($) {
                 var table_content = data['table_content'];
                 var total_rows = table_content.length;
 
-                // Building HTML do show table
+                // Building HTML to show table
                 testapp.models_preview.$content_block.append('<table class="js-table" name="' + table_name + '"> ')
                 var $html_table = $('table.js-table');
                 var field_types = data['field_types'];
@@ -177,7 +177,7 @@ jQuery(function ($) {
                             cell.off('click')
                         }
                     }
-                })
+                });
             });
 
             // Attaching validation function for EmailFields if any
@@ -283,6 +283,7 @@ jQuery(function ($) {
                     testapp.models_preview.$status_msg.addClass("info")
                     testapp.models_preview.$status_msg.fadeIn('slow')
                 } else {
+                    testapp.models_preview.$status_msg.fadeOut()
                     testapp.models_preview.$status_msg.text(data['err_msg'])
                     testapp.models_preview.$status_msg.removeClass("info")
                     testapp.models_preview.$status_msg.addClass("error")
