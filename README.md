@@ -8,5 +8,3 @@ SMtest
 - make syncdb
 - make migrate
 - make run
-
-Ta-da!
