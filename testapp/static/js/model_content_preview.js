@@ -18,17 +18,18 @@ jQuery(function ($) {
             $('.js-swith-model').on('click', testapp.models_preview.click_on_model_url);
             $('body').on('keydown', testapp.models_preview.ctrl_enter_press);
         },
+        // Function that loads and shows model's records
         click_on_model_url:function(e, table_){
             var table_name = "",
                 url = "",
                 data = {};
+
             if (e != null) {
                 e.preventDefault();
             }
             testapp.models_preview.$status_msg.fadeOut()
             $('table.js-table').remove()
             $('input.js-add-table-row').remove()
-
             url = $(this).attr("href")
 
             if (typeof table_ == 'undefined'){
@@ -37,8 +38,8 @@ jQuery(function ($) {
             } else {
                 table_name = table_
             }
-            data['model_name'] = table_name
 
+            data['model_name'] = table_name
             $.ajax({
                 url: url,
                 data: data,
@@ -47,6 +48,8 @@ jQuery(function ($) {
               if (data['result'] == 'success') {
                 var table_content = data['table_content'];
                 var total_rows = table_content.length;
+
+                // Building HTML do show table
                 testapp.models_preview.$content_block.append('<table class="js-table" name="' + table_name + '"> ')
                 var $html_table = $('table.js-table');
                 var field_types = data['field_types'];
@@ -62,14 +65,23 @@ jQuery(function ($) {
                         $html_table.append('<tbody class="js-tbody"><tr class="'+row_class_name+'">')
                         var $row = $('tr.'+row_class_name);
                         $.each(fields, function(key, value){
-                            $row.append('<td name="' + key + '" class="' + field_types[key] + '">'+value+'</td>')
+                            var prop_val = "";
+                            if (value == null) {
+                                prop_val = ""
+                            } else {prop_val = value}
+                            $row.append('<td name="' + key + '" class="' + field_types[key] + '">'+prop_val+'</td>')
                         });
                         $row.append('</tr>')
                     } else {
                         $html_table.append('<tr class="'+row_class_name+'">')
                         var $row = $('tr.'+row_class_name);
+
                         $.each(fields, function(key, value){
-                            $row.append('<td name="' + key + '" class="' + field_types[key] + '">'+value+'</td>')
+                            var prop_val = "";
+                            if (value == null) {
+                                prop_val = ""
+                            } else {prop_val = value}
+                            $row.append('<td name="' + key + '" class="' + field_types[key] + '">'+prop_val+'</td>')
                         });
                         $row.append('</tr>')
                     }
@@ -83,34 +95,44 @@ jQuery(function ($) {
 
                 $('table.js-table').on('click', 'td', testapp.models_preview.display_td_input);
               } else {
-                alert('Error!');
+                testapp.models_preview.$status_msg.text("Error occured while trying to displaye table content.")
+                testapp.models_preview.$status_msg.removeClass("info")
+                testapp.models_preview.$status_msg.addClass("error")
+                testapp.models_preview.$status_msg.fadeIn('slow')
               }
             });
-
         },
+
         display_td_input:function() {
             var $cell = $(this),
                 cellWidth = $cell.css('width'),
                 prevContent = $cell.text(),
                 new_val = '<input type="text" size="4" class="newValue" value="' + prevContent + '" />';
+
             $cell.addClass("updated-cell");
             $cell.html(new_val).find('input[type=text]').focus().css('width',cellWidth);
-
-
             testapp.models_preview.attach_widget($cell, prevContent);
-
             $cell.on('click', function(){return false});
-
             var $inp = $cell.find('input.newValue');
 
+            // Except DateFields 'cause of mess with datepickers events
             $cell.focusout(function () {
-                if ($cell.find('.newValue').val() == prevContent ) {
+                if ($cell.find('.newValue').val() == prevContent && !$cell.hasClass('DateField')) {
                     $cell.text(prevContent);
                     $cell.removeClass("updated-cell");
                     $cell.off('click');
                 }
 
             });
+            // For date values we'll use 'change' function
+            $cell.change(function(){
+                if ($cell.hasClass('DateField') && $cell.find('.newValue').val() == prevContent) {
+                    $cell.text(prevContent)
+                    $cell.removeClass('updated-cell')
+                    $cell.off('click')
+                }
+            })
+            // Press Esc
             $cell.on('keydown',function(e) {
                 if (e.keyCode == 27) {
                     $cell.text(prevContent);
@@ -121,6 +143,7 @@ jQuery(function ($) {
             });
         },
         attach_widget:function(cell, prevContent) {
+            // Using jquery.numeric plugin for numeric fields
             if (cell.hasClass("DecimalField") || cell.hasClass("FloatField")) {
                 cell.find('.newValue').numeric({ negative: false }, function() { alert("No negative values"); this.value = "0.0"; this.focus(); });
             }
@@ -128,26 +151,45 @@ jQuery(function ($) {
             if (cell.hasClass("IntegerField") ) {
                     cell.find('.newValue').numeric(false, function() { alert("Integers only"); this.value = "0"; this.focus(); });
                 }
-
+            // Using Datepicker for DateFields
             if (cell.hasClass("DateField")) {
                 var date_input =  cell.find('input.newValue'),
-                    date_parts = prevContent.match(/(\d+)/g),
-                    realDate = new Date(date_parts[0], date_parts[1] - 1, date_parts[2]);
+                    date_parts = prevContent.match(/(\d+)/g);
+
+                if (date_parts == null) {
+                    var realDate = new Date();
+                } else {
+                    var realDate = new Date(date_parts[0], date_parts[1] - 1, date_parts[2]);
+                }
+
                 date_input.addClass("date-pick")
                 }
 
+            $('.date-pick').each(function(){
+                $(this).datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    onClose: function() {
+                        cell.on('click', function(){return false});
+                        if ($(this).val() == prevContent) {
+                            cell.text(prevContent);
+                            cell.removeClass('updated-cell error-cell')
+                            cell.closest('tr').removeClass('failed-record')
+                            cell.off('click')
+                        }
+                    }
+                })
+            });
+
+            // Attaching validation function for EmailFields if any
+            var datepick = cell.find('.date-pick');
+
+            datepick.datepicker("setDate", realDate)
+            datepick.val(prevContent).datepicker("show")
             if (cell.hasClass("EmailField")) {
                 var email_input = cell.find('input.newValue');
 
                 email_input.addClass('email-input')
             }
-
-            $('.date-pick').each(function(){
-                $(this).datepicker({
-                    dateFormat: 'yy-mm-dd'
-                })
-            });
-
             $('.email-input').each(function() {
                 $(this).keyup(function() {
                     if (!testapp.models_preview.valid_email($(this).val())) {
@@ -160,10 +202,6 @@ jQuery(function ($) {
                 });
             });
 
-            var datepick = cell.find('.date-pick');
-            datepick.datepicker("setDate", realDate)
-            datepick.val("").datepicker("show")
-
         },
         ctrl_enter_press:function(e){
             if (e.ctrlKey && e.keyCode == 13) {
@@ -171,6 +209,7 @@ jQuery(function ($) {
                 testapp.models_preview.send_table_update(model_name)
             }
         },
+        // Grabbing new or updated values and sends to the server
         send_table_update:function(model_name) {
             var update = {},
                 new_rows = [],
@@ -186,10 +225,10 @@ jQuery(function ($) {
             }
 
             $('tr.failed-record').removeClass('failed-record');
-
             $('tr.js-new-entry').each(function(idx, row){
                 $(row).attr('id', 'new_row-' + idx);
             });
+
             data['model_name'] = model_name
             $('.updated-cell').each(function(idx, cell){
                 var val = "",
@@ -202,11 +241,9 @@ jQuery(function ($) {
                         cell_is_email = $(cell).hasClass("EmailField");
 
                     val = $(cell).find('.newValue').val()
-
                     if (val == '' && cell_is_digit ) {
-                        val = 0
+                        val = null
                     }
-
                     if (typeof update[object_id] == 'undefined') {
                         update[object_id] = {}
                     }
@@ -267,7 +304,6 @@ jQuery(function ($) {
             $table.find('th').each(function(idx, elem) {
                 headers[idx] = $(elem).text()
             });
-
             $table_body.append('<tr class="js-new-entry '+model_name+'">')
             var $new_row = $table_body.find('tr.js-new-entry:last'),
                 current_date = $.datepicker.formatDate('yy-mm-dd', new Date());
