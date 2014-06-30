@@ -20,3 +20,6 @@ migrate:
 
 syncdb:
 	PYTHONPATH=`pwd` DJANGO_SETTINGS_MODULE=dynmodels.settings $(MANAGE) syncdb --noinput
+
+collectstatic:
+	PYTHONPATH=`pwd` DJANGO_SETTINGS_MODULE=dynmodels.settings $(MANAGE) collectstatic --noinput
