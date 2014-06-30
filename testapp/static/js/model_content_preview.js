@@ -311,7 +311,7 @@ jQuery(function ($) {
 
             $.each(headers, function(idx, value){
                 if (field_types[value] == 'DateField') {
-                    $new_row.append('<td name="' + value + '" class="' + field_types[value] + '">'+current_date+'</td>')
+                    $new_row.append('<td name="' + value + '" class="' + field_types[value] + '"></td>')
                 } else {
                     $new_row.append('<td name="' + value + '" class="' + field_types[value] + '"></td>')
                 }
