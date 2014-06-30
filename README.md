@@ -1,9 +1,9 @@
-Stest
+SMtest
 =====
 
 - git clone git@github.com:Animasola/SMtest.git
 - mkvirtualenv dummy_test
-- cd ./Stest/
+- cd ./SMtest/
 - pip install -r requirements.txt
 - make syncdb
 - make migrate
